@@ -7,16 +7,9 @@
 # https://github.com/kipsnak/munin-activemq-plugin - was used as inspiration
 
 import collectd
-import sys
-import urllib2
-try:
-    import xml.etree.cElementTree as etree
-except ImportError:
-    try:
-        import xml.etree.ElementTree as etree
-    except ImportError:
-        print 'python >= 2.5'
-        sys.exit()
+from xml.dom import minidom
+import urllib
+
 
 # Host to connect to. Override in config by specifying 'Host'.
 AMQ_ADMIN_HOST = 'localhost'
@@ -61,33 +54,36 @@ def dispatch_value(instance, key, value, value_type):
 
 
 def fetch_info():
-    """Connect to ActiveMQ admin webpage and return XML object"""
+    """Connect to ActiveMQ admin webpage and return DOM object"""
     url = 'http://%s:%s/admin/xml/queues.jsp' % (AMQ_ADMIN_HOST, AMQ_ADMIN_PORT)
-    xml = None
+    dom = None
     try:
-        f = urllib2.urlopen(url)
-        #f = open('queues.xml', 'r')
-        xml = etree.fromstring(f.read())
+        dom = minidom.parse(urllib.urlopen(url))
+        #dom = minidom.parse(open('queues.xml', 'r'))
     except Exception:
         pass
-    return xml
+    return dom
 
 
 def read_callback():
     """Collectd read callback"""
     log_verbose('Read callback called')
-    xml = fetch_info()
-    if not xml:
+    dom = fetch_info()
+    if not dom:
         log_verbose('activemq_info plugin: No info received, offline node or turned off ActiveMQ')
         return
 
-    for q in xml.iter('queue'):
-        queue = q.attrib['name'].replace('.', '_')
-        stat = q.find('stats')
-        dispatch_value(queue, 'size',          stat.attrib['size'],          'gauge')
-        dispatch_value(queue, 'consumerCount', stat.attrib['consumerCount'], 'gauge')
-        dispatch_value(queue, 'enqueueCount',  stat.attrib['enqueueCount'],  'counter')
-        dispatch_value(queue, 'dequeueCount',  stat.attrib['dequeueCount'],  'counter')
+    queuenodes = dom.getElementsByTagName("queue")
+    for node in queuenodes:
+        queue = node.attributes.item(0).value
+        size = node.getElementsByTagName("stats").item(0).getAttribute("size")
+        consumerCount = node.getElementsByTagName("stats").item(0).getAttribute("consumerCount")
+        enqueueCount = node.getElementsByTagName("stats").item(0).getAttribute("enqueueCount")
+        dequeueCount = node.getElementsByTagName("stats").item(0).getAttribute("dequeueCount")
+        dispatch_value(queue, 'size',          size,          'gauge')
+        dispatch_value(queue, 'consumerCount', consumerCount, 'gauge')
+        dispatch_value(queue, 'enqueueCount',  enqueueCount,  'counter')
+        dispatch_value(queue, 'dequeueCount',  dequeueCount,  'counter')
 
 
 # register callbacks
