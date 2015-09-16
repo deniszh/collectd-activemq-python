@@ -37,3 +37,7 @@ Add the following to your collectd config
         Port 8161
       </Module>
     </Plugin>
+
+License
+-------
+MIT
