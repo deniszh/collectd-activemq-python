@@ -7,7 +7,6 @@
 # https://github.com/powdahound/redis-collectd-plugin - was used as template
 # https://github.com/kipsnak/munin-activemq-plugin - was used as inspiration
 
-import argparse
 import pprint
 from xml.dom import minidom
 import urllib
@@ -80,6 +79,7 @@ class AMQMonitor(object):
         return metrics
 
 if __name__ == '__main__':
+    import argparse
     import logging
 
     logging.basicConfig(level=logging.DEBUG)
