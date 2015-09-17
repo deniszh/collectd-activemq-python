@@ -104,7 +104,7 @@ else:
                 log.warning('activemq_info plugin: Unknown config key: %s.'
                             % node.key)
         amq.log_verbose('Configured with host={0}, port={1}'.format(
-            (amq.host, amq.port)))
+            amq.host, amq.port))
         collectd.register_read(amq.read_callback)
 
     def read_callback(self):
