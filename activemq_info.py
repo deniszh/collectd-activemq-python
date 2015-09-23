@@ -105,7 +105,7 @@ else:
                             % node.key)
         amq.log_verbose('Configured with host={0}, port={1}'.format(
             amq.host, amq.port))
-        collectd.register_read(amq.read_callback)
+        collectd.register_read(read_callback)
 
     def read_callback(self):
         """Collectd read callback"""
