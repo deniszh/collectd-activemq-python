@@ -111,13 +111,19 @@ else:
                 amq.host = node.values[0]
             elif node.key == 'Port':
                 amq.port = int(node.values[0])
+            elif node.key == 'User':
+                amq.login = node.values[0]
+            elif node.key == 'Pass':
+                amq.passw = node.values[0]
+            elif node.key == 'Webadmin':
+                amq.webadmin = node.values[0]
             elif node.key == 'Verbose':
                 amq.verbose_logging = bool(node.values[0])
             else:
                 log.warning('activemq_info plugin: Unknown config key: %s.'
                             % node.key)
-        amq.log_verbose('Configured with host={0}, port={1}'.format(
-            amq.host, amq.port))
+        amq.log_verbose('Configured with host={0}, port={1}, webadmin={2}, login={3}'.format(
+            amq.host, amq.port, amq.webadmin, amq.login))
         collectd.register_read(read_callback)
 
     def read_callback(self):
