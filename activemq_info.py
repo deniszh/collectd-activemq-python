@@ -9,7 +9,7 @@
 
 import pprint
 from xml.dom import minidom
-import urllib
+import requests
 
 PLUGIN_NAME = 'activemq_info'
 
@@ -18,6 +18,9 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('host')
     parser.add_argument('port', type=int)
+    parser.add_argument('-w', '--webadmin', default='admin')
+    parser.add_argument('-l', '--login')
+    parser.add_argument('-p', '--password')
     return parser.parse_args()
 
 
@@ -25,17 +28,24 @@ def main():
     args = parse_args()
     host = args.host
     port = args.port
+    webadmin = args.webadmin
+    login = args.login
+    passw = args.password
     log.debug('Using host {0}'.format(host))
     log.debug('Using port {0}'.format(port))
-    amq = AMQMonitor(host=host, port=port, verbose_logging=True)
-    log.debug('Metrics to send:\n{0}'.format(
-        pprint.pformat(amq.fetch_metrics(), indent=2)))
+    if login:
+      log.debug('Authenticating with {0}'.format(login))
+    amq = AMQMonitor(host=host, port=port, webadmin=webadmin, login=login, passw=passw, verbose_logging=True)
+    log.debug('Metrics to send:\n{0}'.format(pprint.pformat(amq.fetch_metrics(), indent=2)))
 
 
 class AMQMonitor(object):
-    def __init__(self, host='localhost', port=8161, verbose_logging=False):
+    def __init__(self, host='localhost', port=8161, webadmin='admin', login='', passw='', verbose_logging=False):
         self.host = host
         self.port = port
+        self.webadmin = webadmin
+        self.login = login
+        self.passw = passw
         self.verbose_logging = verbose_logging
 
     def log_verbose(self, msg):
@@ -45,10 +55,13 @@ class AMQMonitor(object):
 
     def fetch_metrics(self):
         """Connect to ActiveMQ admin webpage and return DOM object"""
-        url = 'http://%s:%s/admin/xml/queues.jsp' % (self.host, self.port)
+        url = 'http://%s:%s/%s/xml/queues.jsp' % (self.host, self.port, self.webadmin)
         dom = None
         try:
-            dom = minidom.parse(urllib.urlopen(url))
+            if self.login:
+                dom = minidom.parseString(requests.get(url, auth=(self.login, self.passw)).text)
+            else:
+                dom = minidom.parseString(requests.get(url).text)
         except Exception:
             self.log_verbose('activemq_info plugin: No info received, '
                              'offline node or turned off ActiveMQ')
@@ -98,13 +111,19 @@ else:
                 amq.host = node.values[0]
             elif node.key == 'Port':
                 amq.port = int(node.values[0])
+            elif node.key == 'User':
+                amq.login = node.values[0]
+            elif node.key == 'Pass':
+                amq.passw = node.values[0]
+            elif node.key == 'Webadmin':
+                amq.webadmin = node.values[0]
             elif node.key == 'Verbose':
                 amq.verbose_logging = bool(node.values[0])
             else:
                 log.warning('activemq_info plugin: Unknown config key: %s.'
                             % node.key)
-        amq.log_verbose('Configured with host={0}, port={1}'.format(
-            amq.host, amq.port))
+        amq.log_verbose('Configured with host={0}, port={1}, webadmin={2}, login={3}'.format(
+            amq.host, amq.port, amq.webadmin, amq.login))
         collectd.register_read(read_callback)
 
     def read_callback(self):
