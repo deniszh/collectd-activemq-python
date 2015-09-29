@@ -38,7 +38,7 @@ Add the following to your collectd config
       </Module>
     </Plugin>
 
-Optionnal attributes can be set to configure http auth or webadmin root path :
+Optional attributes can be set to configure http auth or webadmin root path:
 
       <Module activemq_info>
         Host "localhost"
@@ -48,6 +48,10 @@ Optionnal attributes can be set to configure http auth or webadmin root path :
         Webadmin amq-admin
       </Module>
 _It will access http://localhost:8161/amq-admin/xml/queues.jsp and authenticate with jdoe/123qwerty_
+
+Dependencies
+------------
+[Python-requests](http://www.python-requests.org/en/latest/) module is required. Please install it with `pip install requests` or use your package manager to install `python-requests` package or similar.
 
 License
 -------
