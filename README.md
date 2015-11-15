@@ -32,7 +32,7 @@ Add the following to your collectd config
       ModulePath "/usr/lib/collectd/plugins/python"
       Import "activemq_info"
 
-      <Module activemq_info>
+      <Module activemq_info>Up
         Host "localhost"
         Port 8161
       </Module>
@@ -43,9 +43,9 @@ Optional attributes can be set to configure http auth or webadmin root path:
       <Module activemq_info>
         Host "localhost"
         Port 8161
-        User jdoe
-        Pass 123qwerty
-        Webadmin amq-admin
+        User "jdoe"
+        Pass "123qwerty"
+        Webadmin "amq-admin"
       </Module>
 _It will access http://localhost:8161/amq-admin/xml/queues.jsp and authenticate with jdoe/123qwerty_
 
