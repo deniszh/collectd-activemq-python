@@ -55,4 +55,16 @@ Dependencies
 
 License
 -------
-MIT
+
+[MIT](http://mit-license.org/)
+
+Support
+-------
+
+Please do not send me PMs in Twitter with issues. Just open an [issue](https://github.com/deniszh/collectd-activemq-python/issues) on [projects' Github](https://github.com/deniszh/collectd-activemq-python) instead and I'll respond ASAP!
+
+Contact
+-------
+
+[Denis Zhdanov](mailto:denis.zhdanov@gmail.com)
+([@deniszh](http://twitter.com/deniszh))
