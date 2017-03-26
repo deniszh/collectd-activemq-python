@@ -32,7 +32,7 @@ Add the following to your collectd config
       ModulePath "/usr/lib/collectd/plugins/python"
       Import "activemq_info"
 
-      <Module activemq_info>Up
+      <Module activemq_info>
         Host "localhost"
         Port 8161
       </Module>
